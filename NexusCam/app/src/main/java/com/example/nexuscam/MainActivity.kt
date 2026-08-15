@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
     
     private var ipAddress by mutableStateOf("Loading IP...")
     private var hasCameraPermission by mutableStateOf(false)
+    private var activeConnections by mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +60,9 @@ class MainActivity : ComponentActivity() {
         ipAddress = if (ip == "0.0.0.0") "No WiFi Connection" else "http://$ip:8080/video"
         
         server = MjpegServer(8080)
+        server?.onConnectionStateChanged = { connections ->
+            activeConnections = connections
+        }
         server?.start(fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT, false)
 
         hasCameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -91,7 +96,8 @@ class MainActivity : ComponentActivity() {
                     NexusCamApp(
                         ipAddress = ipAddress,
                         hasCameraPermission = hasCameraPermission,
-                        server = server
+                        server = server,
+                        activeConnections = activeConnections
                     )
                 }
             }
@@ -109,7 +115,8 @@ class MainActivity : ComponentActivity() {
 fun NexusCamApp(
     ipAddress: String,
     hasCameraPermission: Boolean,
-    server: MjpegServer?
+    server: MjpegServer?,
+    activeConnections: Int
 ) {
     var showProControls by remember { mutableStateOf(false) }
     
@@ -155,15 +162,64 @@ fun NexusCamApp(
                 }
             }
             
-            // Camera Preview
+            // Camera Preview or Standby
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (hasCameraPermission) {
-                    ProCameraPreview(
-                        showProControls = showProControls,
-                        onFrame = { proxy ->
-                            server?.updateImage(proxy)
+                    if (BuildConfig.FLAVOR == "cameraOnly" && activeConnections == 0) {
+                        Text(
+                            text = "STANDBY\nWaiting for PC connection...",
+                            color = Color.White,
+                            modifier = Modifier.align(Alignment.Center),
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        var fxResult by remember { mutableStateOf<com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarkerResult?>(null) }
+                        val particleSystem = remember { ParticleSystem(maxParticles = 250) }
+                        var canvasWidth by remember { mutableStateOf(0) }
+                        var canvasHeight by remember { mutableStateOf(0) }
+                        
+                        val context = androidx.compose.ui.platform.LocalContext.current
+                        val handTracker = remember {
+                            if (BuildConfig.FLAVOR == "standalone") {
+                                HandTracker(
+                                    context = context,
+                                    onResult = { result, w, h ->
+                                        fxResult = result
+                                    }
+                                )
+                            } else null
                         }
-                    )
+
+                        // FX Overlay
+                        if (BuildConfig.FLAVOR == "standalone") {
+                            androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                                canvasWidth = size.width.toInt()
+                                canvasHeight = size.height.toInt()
+                                renderNeonFX(
+                                    drawScope = this,
+                                    result = fxResult,
+                                    particles = particleSystem,
+                                    w = canvasWidth,
+                                    h = canvasHeight,
+                                    isFrontCamera = false
+                                )
+                            }
+                        }
+                        
+                        ProCameraPreview(
+                            showProControls = showProControls,
+                            onFrame = { proxy ->
+                                if (BuildConfig.FLAVOR == "standalone" && handTracker != null) {
+                                    // Throttle AI processing to save RAM/CPU
+                                    if (System.currentTimeMillis() % 2 == 0L) {
+                                        val bmp = imageProxyToBitmap(proxy)
+                                        handTracker.processFrame(bmp, SystemClock.uptimeMillis())
+                                    }
+                                }
+                                server?.updateImage(proxy)
+                            }
+                        )
+                    }
                 } else {
                     Text(
                         text = "Please allow Camera permissions to stream...",

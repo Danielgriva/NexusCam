@@ -38,8 +38,22 @@ android {
     buildFeatures {
       compose = true
       aidl = false
-      buildConfig = false
+      buildConfig = true
       shaders = false
+    }
+
+    flavorDimensions += "appType"
+    productFlavors {
+        create("standalone") {
+            dimension = "appType"
+            applicationIdSuffix = ".standalone"
+            versionNameSuffix = "-standalone"
+        }
+        create("cameraOnly") {
+            dimension = "appType"
+            applicationIdSuffix = ".camera"
+            versionNameSuffix = "-camera"
+        }
     }
 
     packaging {
@@ -101,4 +115,7 @@ dependencies {
 
   // NanoHTTPD for MJPEG server
   implementation("org.nanohttpd:nanohttpd:2.3.1")
+  
+  // MediaPipe for standalone FX
+  implementation("com.google.mediapipe:tasks-vision:0.10.9")
 }

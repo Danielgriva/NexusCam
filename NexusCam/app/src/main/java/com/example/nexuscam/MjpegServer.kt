@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicReference
 class MjpegServer(port: Int) : NanoHTTPD(port) {
 
     private val latestJpeg = AtomicReference<ByteArray?>(null)
+    var activeConnections = 0
+    var onConnectionStateChanged: ((Int) -> Unit)? = null
 
     fun updateImage(imageProxy: ImageProxy) {
         val yBuffer = imageProxy.planes[0].buffer
@@ -44,6 +46,18 @@ class MjpegServer(port: Int) : NanoHTTPD(port) {
             val stream = object : InputStream() {
                 var currentFrame: ByteArray? = null
                 var currentPos = 0
+
+                init {
+                    activeConnections++
+                    onConnectionStateChanged?.invoke(activeConnections)
+                }
+
+                override fun close() {
+                    activeConnections--
+                    if(activeConnections < 0) activeConnections = 0
+                    onConnectionStateChanged?.invoke(activeConnections)
+                    super.close()
+                }
 
                 override fun read(): Int {
                     return -1 // Fallback

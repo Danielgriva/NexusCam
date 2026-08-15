@@ -184,32 +184,31 @@ class PresetManager:
         return f"Empty {slot}"
 
 # ==========================================
-# COLOR PALETTE
+# COLOR PALETTE (Minimalist Professional)
 # ==========================================
-# Professional dark theme with neon accents
-C_BG = (12, 12, 14)           # Near-black background
-C_PANEL = (20, 22, 28)        # Panel background  
-C_PANEL_HOVER = (30, 35, 45)  # Hovered panel
-C_ACCENT = (0, 255, 200)      # Primary cyan accent (BGR)
-C_ACCENT2 = (255, 97, 216)    # Secondary magenta accent (BGR)
-C_TEXT = (200, 210, 220)       # Primary text
-C_TEXT_DIM = (80, 90, 100)     # Dimmed text
-C_DANGER = (60, 60, 255)      # Red for recording (BGR)
-C_SUCCESS = (100, 255, 0)     # Green
-C_SLIDER_TRACK = (35, 40, 50)
-C_SLIDER_FILL = (0, 200, 160)
+C_BG = (10, 10, 10)           # Deep black background
+C_PANEL = (25, 25, 25)        # Clean dark gray panel
+C_PANEL_HOVER = (40, 40, 40)  # Lighter gray on hover
+C_ACCENT = (255, 255, 255)    # Pure white for outlines and accents
+C_ACCENT2 = (200, 200, 200)   # Soft white
+C_TEXT = (240, 240, 240)      # Crisp white text
+C_TEXT_DIM = (120, 120, 120)  # Professional muted gray
+C_DANGER = (50, 50, 220)      # Standard red for recording
+C_SUCCESS = (100, 200, 100)   # Subtle green
+C_SLIDER_TRACK = (40, 40, 40) # Subtle track
+C_SLIDER_FILL = (255, 255, 255) # Clean white slider fill
 
-# Neon color palette for user selection
+# Minimalist color palette for user selection
 NEON_PALETTE = [
-    (0, 255, 200),    # Cyan
-    (255, 97, 216),   # Magenta/Pink
-    (50, 200, 255),   # Orange
-    (0, 255, 0),      # Green
-    (255, 100, 50),   # Blue
-    (0, 180, 255),    # Amber
-    (200, 100, 255),  # Purple
-    (0, 255, 255),    # Yellow
-    (255, 255, 255),  # White
+    (255, 255, 255),  # Pure White
+    (220, 220, 220),  # Soft White
+    (200, 200, 200),  # Light Gray
+    (150, 150, 150),  # Medium Gray
+    (255, 200, 200),  # Subtle Warm
+    (200, 200, 255),  # Subtle Cool
+    (100, 255, 100),  # Clean Green
+    (100, 200, 255),  # Clean Blue
+    (255, 100, 100),  # Clean Red
 ]
 
 # ==========================================
