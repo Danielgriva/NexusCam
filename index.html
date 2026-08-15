@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NEXUS FRAME - Futuristic hand tracking cyber frame with holographic effects powered by MediaPipe">
+    <title>NEXUS FRAME // Holographic Hand Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-grid"></div>
+
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="header" id="header">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#logoGrad)" stroke-width="1.5" fill="none"/>
+                        <path d="M14 6L22 10V18L14 22L6 18V10L14 6Z" stroke="url(#logoGrad)" stroke-width="1" fill="rgba(0,255,200,0.1)"/>
+                        <circle cx="14" cy="14" r="3" fill="url(#logoGrad)"/>
+                        <defs>
+                            <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26">
+                                <stop offset="0%" stop-color="#00ffc8"/>
+                                <stop offset="100%" stop-color="#7b61ff"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="header-title">
+                    <h1>NEXUS FRAME</h1>
+                    <span class="header-subtitle">HOLOGRAPHIC TRACKER // v2.0</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-pill" id="statusPill">
+                    <span class="status-dot"></span>
+                    <span class="status-text">INITIALIZING</span>
+                </div>
+                <div class="fps-counter" id="fpsCounter">-- FPS</div>
+            </div>
+        </header>
+
+        <!-- Main Camera Section -->
+        <main class="main-content">
+            <div class="camera-wrapper" id="cameraWrapper">
+                <!-- Corner decorations -->
+                <div class="corner-deco top-left"></div>
+                <div class="corner-deco top-right"></div>
+                <div class="corner-deco bottom-left"></div>
+                <div class="corner-deco bottom-right"></div>
+
+                <!-- Scan line animation -->
+                <div class="scan-line" id="scanLine"></div>
+
+                <!-- Video and Canvas -->
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="outputCanvas"></canvas>
+
+                <!-- HUD Overlay Elements -->
+                <div class="hud-overlay">
+                    <div class="hud-top-left">
+                        <span class="hud-label">REC</span>
+                        <span class="hud-dot blink"></span>
+                    </div>
+                    <div class="hud-top-right" id="hudTopRight">
+                        <span class="hud-time" id="hudTime">00:00:00</span>
+                    </div>
+                    <div class="hud-bottom-left" id="hudBottomLeft">
+                        <span class="hud-info" id="handsDetected">NO HANDS DETECTED</span>
+                    </div>
+                    <div class="hud-bottom-right">
+                        <span class="hud-label" id="frameStatus">FRAME: STANDBY</span>
+                    </div>
+                </div>
+
+                <!-- Countdown Overlay -->
+                <div class="countdown-overlay hidden" id="countdownOverlay">
+                    <span class="countdown-number" id="countdownNumber">3</span>
+                </div>
+
+                <!-- Recording Indicator -->
+                <div class="recording-indicator hidden" id="recordingIndicator">
+                    <span class="rec-dot"></span>
+                    <span class="rec-label">REC</span>
+                    <span class="rec-time" id="recTime">00:00</span>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring inner"></div>
+                    </div>
+                    <p class="loading-text">INITIALIZING NEXUS FRAME</p>
+                    <p class="loading-sub" id="loadingStatus">Loading MediaPipe Hand Tracker...</p>
+                </div>
+            </div>
+
+            <!-- Controls Bar -->
+            <div class="controls-bar" id="controlsBar">
+                <div class="control-group">
+                    <label class="control-label">EFFECT MODE</label>
+                    <div class="mode-switcher" id="modeSwitcher">
+                        <button class="mode-btn active" data-mode="hologram" id="modeHologram">
+                            <span class="mode-icon">◈</span>
+                            HOLOGRAM
+                        </button>
+                        <button class="mode-btn" data-mode="neon" id="modeNeon">
+                            <span class="mode-icon">◉</span>
+                            NEON
+                        </button>
+                        <button class="mode-btn" data-mode="matrix" id="modeMatrix">
+                            <span class="mode-icon">▦</span>
+                            MATRIX
+                        </button>
+                        <button class="mode-btn" data-mode="plasma" id="modePlasma">
+                            <span class="mode-icon">◎</span>
+                            PLASMA
+                        </button>
+                    </div>
+                </div>
+                <div class="control-group actions-group">
+                    <!-- Timer Selector -->
+                    <div class="timer-selector" id="timerSelector">
+                        <label class="control-label">TIMER</label>
+                        <div class="timer-buttons">
+                            <button class="timer-btn active" data-timer="0" id="timerOff">OFF</button>
+                            <button class="timer-btn" data-timer="3" id="timer3">3s</button>
+                            <button class="timer-btn" data-timer="5" id="timer5">5s</button>
+                            <button class="timer-btn" data-timer="10" id="timer10">10s</button>
+                        </div>
+                    </div>
+
+                    <!-- Capture Button -->
+                    <button class="capture-btn" id="captureBtn" title="Capture Screenshot">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="4"/>
+                        </svg>
+                        <span>PHOTO</span>
+                    </button>
+
+                    <!-- Video Record Button -->
+                    <button class="record-btn" id="recordBtn" title="Record Video">
+                        <div class="rec-icon" id="recIcon"></div>
+                        <span id="recordLabel">RECORD</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Instructions Panel -->
+        <div class="instructions-panel" id="instructionsPanel">
+            <div class="instruction-step">
+                <div class="step-number">01</div>
+                <div class="step-text">Raise both hands with index fingers pointing UP and thumbs pointing inward</div>
+            </div>
+            <div class="instruction-step">
+                <div class="step-number">02</div>
+                <div class="step-text">A holographic frame will appear between your fingertips</div>
+            </div>
+            <div class="instruction-step">
+                <div class="step-number">03</div>
+                <div class="step-text">Use TIMER for delayed capture, or RECORD to save video</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden canvas for compositing -->
+    <canvas id="screenshotCanvas" style="display:none;"></canvas>
+    <canvas id="compositeCanvas" style="display:none;"></canvas>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

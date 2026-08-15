@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.spec
+venv/
+venv2/
+
+# Android
+NexusCam/.gradle/
+NexusCam/build/
+NexusCam/app/build/
+NexusCam/local.properties
+NexusCam/*.jks
+NexusCam/app/release/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Media outputs
+NexusMedia/
+
+# Large model file (users download separately)
+hand_landmarker.task
+
+# APK outputs
+*.apk
