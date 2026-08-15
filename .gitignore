@@ -41,3 +41,5 @@ hand_landmarker.task
 task for later.md
 task.md
 walkthrough.md
+*.exe
+*.apk
