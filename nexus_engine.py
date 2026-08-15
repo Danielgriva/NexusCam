@@ -12,6 +12,8 @@ from tkinter import simpledialog
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import qrcode
+from PIL import Image
 from fx_pipeline import ParticleSystem, render_hologram, render_neon, render_matrix, render_plasma
 
 RENDER_FNS = {
@@ -241,6 +243,19 @@ def draw_text_centered(frame, text, x, y, w, h, color, scale=0.4, thickness=1):
     tx = x + (w - ts[0]) // 2
     ty = y + (h + ts[1]) // 2
     cv2.putText(frame, text, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, scale, color, thickness, cv2.LINE_AA)
+
+def generate_qr_opencv(url):
+    """Generates a QR code and returns it as an OpenCV BGR image."""
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 def draw_slider(frame, x, y, w, value, min_val, max_val, label, color=C_SLIDER_FILL):
     """Draw a horizontal slider. Returns the slider hitbox."""
@@ -481,6 +496,13 @@ class NexusApp:
                 ip = ip.strip()
                 if not ip.startswith("http"):
                     ip = f"http://{ip}:8080/video"
+                
+                # Generate and show QR Code
+                qr_img = generate_qr_opencv(ip)
+                cv2.imshow("NexusCam - Scan QR to Connect", qr_img)
+                cv2.waitKey(2000) # Show for 2 seconds
+                cv2.destroyWindow("NexusCam - Scan QR to Connect")
+
                 self.cam.stop()
                 self.cam = CameraThread(src=ip)
         elif name.startswith("NEON_COLOR_"):
