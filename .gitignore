@@ -36,3 +36,8 @@ hand_landmarker.task
 
 # APK outputs
 *.apk
+
+# Project management & task trackers
+task for later.md
+task.md
+walkthrough.md
